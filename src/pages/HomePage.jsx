@@ -1,4 +1,3 @@
-import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 import HomePageProducts from './HomePageProducts';
 
@@ -10,7 +9,6 @@ const HomePage = () => {
       {/* <Analytics />
                     <Newsletter />
                     <Cards /> */}
-      <Footer />
     </div>
   );
 };

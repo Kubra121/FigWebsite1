@@ -31,14 +31,20 @@ const NavBar = () => {
         FIG
       </h1>
 
-      {/* Menü linkleri */}
+      {/* Menü linkleri (Masaüstü) */}
       <ul className='hidden md:flex'>
+        <li
+          className='p-4 cursor-pointer'
+          onClick={() => navigate('/products')}
+        >
+          Ürünler
+        </li>
         <li className='p-4 cursor-pointer' onClick={() => navigate('/contact')}>
           İletişim
         </li>
       </ul>
 
-      {/* Butonları saran kapsayıcı: genişlik 96 (24rem), butonlar tam geniş */}
+      {/* Üye Giriş / Üye Ol butonları */}
       <div className='hidden md:flex space-x-6 w-96'>
         <button
           className='w-full px-6 py-3 border border-[#04310a] rounded-full hover:bg-[#04310a] hover:text-white transition cursor-pointer'
@@ -54,12 +60,12 @@ const NavBar = () => {
         </button>
       </div>
 
-      {/* Mobil menü ikonu */}
+      {/* Mobil Menü Aç/Kapa */}
       <div onClick={handleNav} className='block md:hidden z-50 cursor-pointer'>
         {nav ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
       </div>
 
-      {/* Mobil menü */}
+      {/* Mobil Menü */}
       <div
         className={
           nav
@@ -69,6 +75,15 @@ const NavBar = () => {
       >
         <h1 className='w-full text-3xl font-bold text-[#04310a] m-4'>FIG</h1>
         <ul className='pt-12 uppercase p-4'>
+          <li
+            className='p-4 cursor-pointer'
+            onClick={() => {
+              navigate('/products');
+              setNav(false);
+            }}
+          >
+            Ürünler
+          </li>
           <li
             className='p-4 cursor-pointer'
             onClick={() => {
