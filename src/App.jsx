@@ -10,6 +10,9 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import PrivateRoute from './components/PrivateRoute';
+import ProfilePage from './pages/ProfilePage';
+import CartPage from './pages/CartPage';
 
 function App() {
   return (
@@ -22,6 +25,15 @@ function App() {
         <Route path='/products' element={<ProductsPage />} />{' '}
         <Route path='/login' element={<LoginPage />} />{' '}
         <Route path='/register' element={<RegisterPage />} />{' '}
+        <Route path='/cart' element={<CartPage />} />{' '}
+        <Route
+          path='/profile'
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />{' '}
       </Routes>
       <Footer />
     </Router>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { fetchPopularProducts } from '../services/fetchPopularProducts';
+import { fetchProducts } from '../services/fetchProducts';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -8,8 +8,8 @@ import ProductCard from '../components/ProductCard';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // 👈 şık ok ikonları
 
 const HomePageProducts = () => {
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [popularProducts, setPopularProducts] = useState([]);
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -17,8 +17,8 @@ const HomePageProducts = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await fetchPopularProducts(10);
-        setProducts(data);
+        const data = await fetchProducts(1);
+        setPopularProducts(data);
       } catch (error) {
         console.error('Hata:', error.message);
       } finally {
@@ -75,7 +75,7 @@ const HomePageProducts = () => {
               1024: { slidesPerView: 3 },
             }}
           >
-            {products.map((product) => (
+            {popularProducts.map((product) => (
               <SwiperSlide key={product.id}>
                 <ProductCard product={product} />
               </SwiperSlide>

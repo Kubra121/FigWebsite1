@@ -1,10 +1,15 @@
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserAuth } from '../contexts/AuthContext';
+import { FaShoppingCart } from 'react-icons/fa'; // Sepet ikonu
+import { FaUserCircle } from 'react-icons/fa';
 
 const NavBar = () => {
   const [nav, setNav] = useState(false);
 
+  const { session, signOut } = UserAuth();
+  const navigate = useNavigate();
   const handleNav = () => {
     setNav(!nav);
   };
@@ -20,7 +25,15 @@ const NavBar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const navigate = useNavigate();
+  const handleLogOut = async (e) => {
+    e.preventDefault();
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className='mt-12 flex justify-between items-center h-24 max-w-[1800px] mx-auto px-4 text-black'>
@@ -32,7 +45,7 @@ const NavBar = () => {
       </h1>
 
       {/* Menü linkleri (Masaüstü) */}
-      <ul className='hidden md:flex'>
+      <ul className='hidden md:flex items-center space-x-6'>
         <li
           className='p-4 cursor-pointer'
           onClick={() => navigate('/products')}
@@ -45,19 +58,51 @@ const NavBar = () => {
       </ul>
 
       {/* Üye Giriş / Üye Ol butonları */}
-      <div className='hidden md:flex space-x-6 w-96'>
-        <button
-          className='w-full px-6 py-3 border border-[#04310a] rounded-full hover:bg-[#04310a] hover:text-white transition cursor-pointer'
-          onClick={() => navigate('/login')}
-        >
-          Üye Girişi
-        </button>
-        <button
-          className='w-full px-6 py-3 bg-[#04310a] rounded-full text-white border border-transparent hover:border-[#04310a] hover:bg-[#ffffff] hover:text-black transition cursor-pointer'
-          onClick={() => navigate('/register')}
-        >
-          Üye Ol
-        </button>
+      <div className='hidden md:flex items-center justify-center space-x-9 w-96'>
+        {!session ? (
+          <>
+            <button
+              className='px-6 py-3 border border-[#04310a] rounded-full hover:bg-[#04310a] hover:text-white transition cursor-pointer'
+              onClick={() => navigate('/login')}
+            >
+              Üye Girişi
+            </button>
+            <button
+              className='px-6 py-3 bg-[#04310a] rounded-full text-white hover:bg-white hover:text-black border hover:border-[#04310a] transition cursor-pointer'
+              onClick={() => navigate('/register')}
+            >
+              Üye Ol
+            </button>
+            <button
+              aria-label='Sepet'
+              onClick={() => navigate('/cart')}
+              className='relative p-2 hover:text-[#04310a]'
+            >
+              <FaShoppingCart size={24} className='cursor-pointer' />
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Sepet butonu masaüstü menüsünde */}
+            <button
+              aria-label='Sepet'
+              onClick={() => navigate('/cart')}
+              className='relative p-2 hover:text-[#04310a]'
+            >
+              <FaShoppingCart size={24} className='cursor-pointer' />
+            </button>
+            <FaUserCircle
+              className='text-3xl text-gray-700 hover:text-black cursor-pointer'
+              onClick={() => navigate('/profile')}
+            />
+            <button
+              onClick={handleLogOut}
+              className='px-2 py-2 border border-red-500 text-red-600 rounded hover:bg-red-600 hover:text-white'
+            >
+              Çıkış Yap
+            </button>
+          </>
+        )}
       </div>
 
       {/* Mobil Menü Aç/Kapa */}
@@ -93,23 +138,53 @@ const NavBar = () => {
           >
             İletişim
           </li>
+
+          {!session ? (
+            <>
+              <li
+                className='p-4 cursor-pointer'
+                onClick={() => {
+                  navigate('/login');
+                  setNav(false);
+                }}
+              >
+                Üye Girişi
+              </li>
+              <li
+                className='p-4 cursor-pointer'
+                onClick={() => {
+                  navigate('/register');
+                  setNav(false);
+                }}
+              >
+                Üye Ol
+              </li>
+            </>
+          ) : (
+            <>
+              <li className='p-4 text-gray-600'>{session?.user?.email}</li>
+              <li
+                className='p-4 cursor-pointer text-red-600'
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLogOut(e);
+                  setNav(false);
+                }}
+              >
+                Çıkış Yap
+              </li>
+            </>
+          )}
+
+          {/* Sepet butonu mobil menüde */}
           <li
-            className='p-4 cursor-pointer'
+            className='p-4 cursor-pointer flex items-center'
             onClick={() => {
-              navigate('/login');
+              navigate('/cart');
               setNav(false);
             }}
           >
-            Üye Girişi
-          </li>
-          <li
-            className='p-4 cursor-pointer'
-            onClick={() => {
-              navigate('/register');
-              setNav(false);
-            }}
-          >
-            Üye Ol
+            Sepet
           </li>
         </ul>
       </div>

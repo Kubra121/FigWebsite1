@@ -1,24 +1,32 @@
 import { useEffect, useState } from 'react';
-import { fetchProducts } from '../services/fetchProducts';
 import ProductCard from '../components/ProductCard';
+import { supabase } from '../supabaseClient';
+import { fetchProducts } from '../services/fetchProducts';
 
 const ProductsPage = () => {
+  const [fetchError, setFetchError] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (err) {
-        console.error('Veri çekme hatası:', err.message);
-      } finally {
-        setLoading(false);
+    const fetchAllProducts = async () => {
+      const data = await fetchProducts();
+      setProducts(data);
+
+      if (fetchError) {
+        setFetchError('Could not fetch.');
+        setProducts(null);
+        console.log(fetchError);
       }
+
+      if (data) {
+        setProducts(data);
+        setFetchError(null);
+      }
+      setLoading(false);
     };
 
-    loadProducts();
+    fetchAllProducts();
   }, []);
 
   if (loading) {
@@ -30,6 +38,7 @@ const ProductsPage = () => {
       <h2 className='text-3xl font-bold text-left text-[#04310a] mb-8'>
         Ürünler
       </h2>
+      {fetchError && <p>{fetchError}</p>}
       {products.length === 0 ? (
         <p className='text-center text-gray-500'>Henüz ürün bulunamadı.</p>
       ) : (
