@@ -13,29 +13,34 @@ import RegisterPage from './pages/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
 import ProfilePage from './pages/ProfilePage';
 import CartPage from './pages/CartPage';
+import { ShoppingCartProvider } from './contexts/ShoppingCartContext';
+import PurchasePage from './pages/PurchasePage';
 
 function App() {
   return (
     <Router>
-      <NavBar />
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/contact' element={<ContactPage />} />{' '}
-        {/* contact route */}
-        <Route path='/products' element={<ProductsPage />} />{' '}
-        <Route path='/login' element={<LoginPage />} />{' '}
-        <Route path='/register' element={<RegisterPage />} />{' '}
-        <Route path='/cart' element={<CartPage />} />{' '}
-        <Route
-          path='/profile'
-          element={
-            <PrivateRoute>
-              <ProfilePage />
-            </PrivateRoute>
-          }
-        />{' '}
-      </Routes>
-      <Footer />
+      <ShoppingCartProvider>
+        <NavBar />
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/contact' element={<ContactPage />} />{' '}
+          {/* contact route */}
+          <Route path='/products' element={<ProductsPage />} />{' '}
+          <Route path='/login' element={<LoginPage />} />{' '}
+          <Route path='/register' element={<RegisterPage />} />{' '}
+          <Route path='/cart' element={<CartPage />} />{' '}
+          <Route path='/purchase' element={<PurchasePage />} />{' '}
+          <Route
+            path='/profile'
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />{' '}
+        </Routes>
+        <Footer />
+      </ShoppingCartProvider>
     </Router>
   );
 }

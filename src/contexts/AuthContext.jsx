@@ -8,14 +8,29 @@ export const AuthContextProvider = ({ children }) => {
 
   //Sign Up
   const signUpNewUser = async (email, password) => {
+    if (!email || !password) {
+      return { success: false, error: 'Email ve parola zorunludur.' };
+    }
+    if (password.length < 6) {
+      return { success: false, error: 'Parola en az 6 karakter olmalıdır.' };
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
 
     if (error) {
-      console.error('There was a problem signing up: ', error);
-      return { success: false, error };
+      const msg = error.message || JSON.stringify(error);
+
+      if (
+        msg.toLowerCase().includes('already registered') ||
+        msg.toLowerCase().includes('user already registered')
+      ) {
+        return { success: false, error: 'Bu e-posta adresi zaten kayıtlı.' };
+      }
+
+      return { success: false, error: msg };
     }
 
     return { success: true, data };

@@ -1,4 +1,26 @@
+import { useShoppingCart } from '../contexts/ShoppingCartContext';
+import { useState } from 'react';
+
 const ProductCard = ({ product }) => {
+  const {
+    getItemQuantity,
+    increaseItemQuantity,
+    decreaseItemQuantity,
+    removeFromCart,
+  } = useShoppingCart();
+
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  const handleAddToCart = (id) => {
+    increaseItemQuantity(id);
+
+    // "Sepete eklendi" mesajını göster
+    setShowAddedMessage(true);
+
+    // 2 saniye sonra mesajı gizle
+    setTimeout(() => setShowAddedMessage(false), 2000);
+  };
+
   return (
     <div className='border rounded-2xl shadow-md hover:shadow-xl transition-transform duration-300 p-4 xl:scale-95 2xl:scale-90 h-[400px] flex flex-col'>
       <img
@@ -13,9 +35,18 @@ const ProductCard = ({ product }) => {
       <p className='text-lg font-bold mt-2 text-[#04310a]'>
         {product.price} TL
       </p>
-      <button className='mt-4 w-full bg-[#04310a] text-white py-2 rounded-full hover:bg-[#06531c] transition'>
+      <button
+        className='mt-4 w-full bg-[#04310a] text-white py-2 rounded-full hover:bg-[#06531c] transition-colors duration-300 ease-in-out cursor-pointer'
+        onClick={() => handleAddToCart(product.id)}
+      >
         Sepete Ekle
       </button>
+      {/* Sepete eklendi mesajı */}
+      {showAddedMessage && (
+        <p className='mt-2 text-green-600 font-semibold text-center'>
+          Sepete eklendi ✅
+        </p>
+      )}
     </div>
   );
 };

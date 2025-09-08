@@ -45,14 +45,17 @@ const NavBar = () => {
       </h1>
 
       {/* Menü linkleri (Masaüstü) */}
-      <ul className='hidden md:flex items-center space-x-6'>
+      <ul className='hidden md:flex items-center space-x-2'>
         <li
           className='p-4 cursor-pointer'
           onClick={() => navigate('/products')}
         >
           Ürünler
         </li>
-        <li className='p-4 cursor-pointer' onClick={() => navigate('/contact')}>
+        <li
+          className='p-4 cursor-pointer pr-9'
+          onClick={() => navigate('/contact')}
+        >
           İletişim
         </li>
       </ul>

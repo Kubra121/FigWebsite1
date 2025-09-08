@@ -19,6 +19,8 @@ const RegisterPage = () => {
       const result = await signUpNewUser(email, password);
       if (result.success) {
         navigate('/');
+      } else if (!result.success) {
+        setError(result.error);
       }
     } catch (error) {
       setError('An error occured');
@@ -57,6 +59,12 @@ const RegisterPage = () => {
           {error && <p className='text-red-600 text-center pt-4'>{error}</p>}
         </div>
       </form>
+
+      {error && (
+        <div className='mt-4 p-2 border border-red-500 bg-red-100 text-red-600'>
+          {error}
+        </div>
+      )}
     </div>
   );
 };
