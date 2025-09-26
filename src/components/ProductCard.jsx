@@ -1,13 +1,9 @@
 import { useShoppingCart } from '../contexts/ShoppingCartContext';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-  const {
-    getItemQuantity,
-    increaseItemQuantity,
-    decreaseItemQuantity,
-    removeFromCart,
-  } = useShoppingCart();
+  const { increaseItemQuantity } = useShoppingCart();
 
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
@@ -21,8 +17,13 @@ const ProductCard = ({ product }) => {
     setTimeout(() => setShowAddedMessage(false), 2000);
   };
 
+  const navigate = useNavigate();
+
   return (
-    <div className='border rounded-2xl shadow-md hover:shadow-xl transition-transform duration-300 p-4 xl:scale-95 2xl:scale-90 h-[400px] flex flex-col'>
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className='border rounded-2xl shadow-md hover:shadow-xl transition-transform duration-300 p-4 xl:scale-95 2xl:scale-90 h-auto min-h-[350px] flex flex-col'
+    >
       <img
         src={product.image_url}
         alt={product.name}
@@ -41,6 +42,7 @@ const ProductCard = ({ product }) => {
       >
         Sepete Ekle
       </button>
+
       {/* Sepete eklendi mesajı */}
       {showAddedMessage && (
         <p className='mt-2 text-green-600 font-semibold text-center'>

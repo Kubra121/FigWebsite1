@@ -17,7 +17,7 @@ const HomePageProducts = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await fetchProducts(1);
+        const data = await fetchProducts(2);
         setPopularProducts(data);
       } catch (error) {
         console.error('Hata:', error.message);
@@ -42,7 +42,7 @@ const HomePageProducts = () => {
           {/* Sol ok */}
           <div
             ref={prevRef}
-            className='absolute -left-10 top-1/2 z-10 -translate-y-1/2 p-3 cursor-pointer transition-all duration-200'
+            className='hidden md:flex absolute -left-10 top-1/2 z-10 -translate-y-1/2 p-3 cursor-pointer'
           >
             <FaChevronLeft className='text-xl text-gray-700' />
           </div>
@@ -50,7 +50,7 @@ const HomePageProducts = () => {
           {/* Sağ ok */}
           <div
             ref={nextRef}
-            className='absolute -right-10 top-1/2 z-10 -translate-y-1/2 p-3  cursor-pointer  transition-all duration-200'
+            className='hidden md:flex absolute -right-10 top-1/2 z-10 -translate-y-1/2 p-3 cursor-pointer'
           >
             <FaChevronRight className='text-xl text-gray-700' />
           </div>
@@ -70,9 +70,10 @@ const HomePageProducts = () => {
               }
             }}
             breakpoints={{
-              640: { slidesPerView: 1 },
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
+              0: { slidesPerView: 1, spaceBetween: 10 },
+              640: { slidesPerView: 1, spaceBetween: 15 },
+              768: { slidesPerView: 2, spaceBetween: 20 },
+              1024: { slidesPerView: 3, spaceBetween: 25 },
             }}
           >
             {popularProducts.map((product) => (

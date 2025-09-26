@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useShoppingCart } from '../contexts/ShoppingCartContext';
 import { fetchProducts } from '../services/fetchProducts';
 import { useNavigate } from 'react-router-dom';
+import { addOrder } from '../utils/addOrder';
 
 const CartPage = () => {
   const {
@@ -14,8 +15,44 @@ const CartPage = () => {
   const [fetchError, setFetchError] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const navigate = useNavigate();
+  const handleOrder = async () => {
+    setLoading(true);
+    setShowAddedMessage('');
+
+    // Sepet ürünlerini products array'i ile eşleştir
+    const orderItems = cartItems.map((item) => {
+      const product = products.find((p) => p.id === item.id);
+      return {
+        product_name: product?.name,
+        quantity: item.quantity,
+        price: product?.price,
+      };
+    });
+    console.log(orderItems);
+    // Eksik bilgili ürünleri at
+    const filteredOrderItems = orderItems.filter(
+      (item) => item.product_name && item.price != null
+    );
+
+    if (filteredOrderItems.length === 0) {
+      setShowAddedMessage('Sepet boş veya ürün bilgileri eksik.');
+      setLoading(false);
+      return;
+    }
+
+    const result = await addOrder(filteredOrderItems);
+
+    if (result.success) {
+      setShowAddedMessage('Sipariş başarıyla oluşturuldu ✅');
+    } else {
+      setShowAddedMessage('Sipariş alınamadı: ' + result.error);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
     const fetchCartProducts = async () => {
@@ -116,7 +153,9 @@ const CartPage = () => {
             </p>
             <button
               className='bg-green-700 text-white px-6 py-2 rounded-full hover:bg-green-800 transition cursor-pointer'
-              onClick={() => navigate('/purchase')}
+              onClick={() => {
+                handleOrder(cartItems);
+              }}
             >
               Satın Al
             </button>

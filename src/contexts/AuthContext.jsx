@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useContext } from 'react';
 import { supabase } from '../supabaseClient';
+import { data } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -7,7 +8,12 @@ export const AuthContextProvider = ({ children }) => {
   const [session, setSession] = useState(undefined);
 
   //Sign Up
-  const signUpNewUser = async (email, password) => {
+  const signUpNewUser = async (
+    email,
+    password,
+    firstName = '',
+    lastName = ''
+  ) => {
     if (!email || !password) {
       return { success: false, error: 'Email ve parola zorunludur.' };
     }
@@ -33,6 +39,21 @@ export const AuthContextProvider = ({ children }) => {
       return { success: false, error: msg };
     }
 
+    const user = data.user;
+    if (user) {
+      const { error: profileError } = await supabase.from('profiles').insert([
+        {
+          id: user.id,
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+        },
+      ]);
+
+      if (profileError) {
+        console.error('Profil oluşturulamadı:', profileError.message);
+      }
+    }
     return { success: true, data };
   };
 

@@ -5,6 +5,9 @@ import { UserAuth } from '../contexts/AuthContext';
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState('');
 
@@ -16,7 +19,7 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await signUpNewUser(email, password);
+      const result = await signUpNewUser(email, password, firstName, lastName);
       if (result.success) {
         navigate('/');
       } else if (!result.success) {
@@ -38,6 +41,18 @@ const RegisterPage = () => {
         </p>
         <div className='flex flex-col py-4'>
           <input
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder='First Name'
+            className='p-3 mt-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600'
+            type='text'
+          />
+          <input
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder='Last Name'
+            className='p-3 mt-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600'
+            type='text'
+          />
+          <input
             onChange={(e) => setEmail(e.target.value)}
             placeholder='Email'
             className='p-3 mt-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600'
@@ -52,7 +67,7 @@ const RegisterPage = () => {
           <button
             type='submit'
             disabled={loading}
-            className='mt-4 w-full cursor-pointer'
+            className='mt-4 w-full bg-[#04310a] text-white py-2 rounded-full hover:bg-[#06531c] transition-colors duration-300 ease-in-out cursor-pointer'
           >
             Sign Up
           </button>

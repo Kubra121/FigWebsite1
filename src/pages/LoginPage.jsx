@@ -50,7 +50,7 @@ const LoginPage = () => {
           <button
             type='submit'
             disabled={loading}
-            className='mt-4 w-full cursor-pointer'
+            className='mt-4 w-full bg-[#04310a] text-white py-2 rounded-full hover:bg-[#06531c] transition-colors duration-300 ease-in-out cursor-pointer'
           >
             Sign In
           </button>
