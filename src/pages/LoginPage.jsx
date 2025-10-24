@@ -6,22 +6,30 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const { session, signInUser } = UserAuth();
-
+  const { signInUser } = UserAuth();
   const navigate = useNavigate();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
       const result = await signInUser(email, password);
+
       if (result.success) {
-        navigate('/');
+        const role = result.data.profile?.role || 'user'; // role yoksa default user
+
+        if (role === 'admin') navigate('/admin');
+        else navigate('/'); // user veya diğer durumlar
+      } else {
+        setError(result.error || 'Giriş yapılamadı');
       }
-    } catch (error) {
-      setError('An error occured');
+    } catch (err) {
+      console.error(err);
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -52,7 +60,7 @@ const LoginPage = () => {
             disabled={loading}
             className='mt-4 w-full bg-[#04310a] text-white py-2 rounded-full hover:bg-[#06531c] transition-colors duration-300 ease-in-out cursor-pointer'
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
           {error && <p className='text-red-600 text-center pt-4'>{error}</p>}
         </div>

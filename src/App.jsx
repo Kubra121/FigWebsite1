@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import CartPage from './pages/CartPage';
 import { ShoppingCartProvider } from './contexts/ShoppingCartContext';
 import PurchasePage from './pages/PurchasePage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <ShoppingCartProvider>
         <NavBar />
         <Routes>
+          {/* Public Routes */}
           <Route path='/' element={<HomePage />} />
           <Route path='/contact' element={<ContactPage />} />{' '}
           {/* contact route */}
@@ -30,23 +32,57 @@ function App() {
           <Route path='/product/:id' element={<ProductDetailPage />} />
           <Route path='/login' element={<LoginPage />} />{' '}
           <Route path='/register' element={<RegisterPage />} />{' '}
+          {/* User Routes */}
           <Route
-            path='/cart'
+            path='/user/cart'
             element={
-              <PrivateRoute>
+              <PrivateRoute role='user'>
                 <CartPage />
               </PrivateRoute>
             }
-          />{' '}
-          <Route path='/purchase' element={<PurchasePage />} />{' '}
+          />
           <Route
-            path='/profile'
+            path='/user/purchase'
             element={
-              <PrivateRoute>
-                <ProfilePage />
+              <PrivateRoute role='user'>
+                <PurchasePage />
               </PrivateRoute>
             }
-          />{' '}
+          />
+          <Route path='/profile' element={<ProfilePage />} />
+          {/* Admin Routes */}
+          <Route
+            path='/admin'
+            element={
+              <PrivateRoute role='admin'>
+                <AdminPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path='/admin/products'
+            element={
+              <PrivateRoute role='admin'>
+                <AdminPage /> {/* Ürün yönetimi komponenti */}
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path='/admin/orders'
+            element={
+              <PrivateRoute role='admin'>
+                <AdminPage /> {/* Sipariş yönetimi komponenti */}
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path='/admin/users'
+            element={
+              <PrivateRoute role='admin'>
+                <AdminPage /> {/* Kullanıcı yönetimi komponenti */}
+              </PrivateRoute>
+            }
+          />
         </Routes>
         <Footer />
       </ShoppingCartProvider>

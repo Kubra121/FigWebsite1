@@ -4,6 +4,7 @@ export const fetchPopularProducts = async (limit) => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
+    .eq('is_active', true) // sadece aktif ürünler
     .order('purchase_count', { ascending: false })
     .limit(limit);
 

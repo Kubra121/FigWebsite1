@@ -5,8 +5,8 @@ export const fetchProducts = async (limit = null) => {
   let query = supabase
     .from('products')
     .select('*')
-    .order('is_active', { ascending: false }) // Aktif ürünler önce
-    .order('id', { ascending: true }); // ID’ye göre artan
+    .eq('is_active', true) // sadece aktif ürünler
+    .order('purchase_count', { ascending: false });
 
   if (limit) {
     query = query.limit(limit);

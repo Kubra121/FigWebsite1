@@ -1,41 +1,31 @@
 import { createContext, useEffect, useState, useContext } from 'react';
 import { supabase } from '../supabaseClient';
-import { data } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [session, setSession] = useState(undefined);
+  const [userProfile, setUserProfile] = useState(null);
 
-  //Sign Up
+  // -------------------- SIGN UP --------------------
   const signUpNewUser = async (
     email,
     password,
     firstName = '',
     lastName = ''
   ) => {
-    if (!email || !password) {
+    if (!email || !password)
       return { success: false, error: 'Email ve parola zorunludur.' };
-    }
-    if (password.length < 6) {
+    if (password.length < 6)
       return { success: false, error: 'Parola en az 6 karakter olmalıdır.' };
-    }
 
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       const msg = error.message || JSON.stringify(error);
-
-      if (
-        msg.toLowerCase().includes('already registered') ||
-        msg.toLowerCase().includes('user already registered')
-      ) {
+      if (msg.toLowerCase().includes('already registered')) {
         return { success: false, error: 'Bu e-posta adresi zaten kayıtlı.' };
       }
-
       return { success: false, error: msg };
     }
 
@@ -44,65 +34,68 @@ export const AuthContextProvider = ({ children }) => {
       const { error: profileError } = await supabase.from('profiles').insert([
         {
           id: user.id,
-          email: email,
+          email,
           first_name: firstName,
           last_name: lastName,
+          role: 'user', // signup olan herkesin default rolü user
         },
       ]);
 
-      if (profileError) {
+      if (profileError)
         console.error('Profil oluşturulamadı:', profileError.message);
-      }
     }
+
     return { success: true, data };
   };
 
-  //Sign In
+  // -------------------- SIGN IN --------------------
   const signInUser = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
+        email,
+        password,
       });
+      if (error) return { success: false, error: error.message };
 
-      if (error) {
-        console.error('Sign in error occured: ', error);
-        return { success: false, error: error.message };
-      }
-      console.log('Sign in success: ', data); //!!!sil sonra
-      return { success: true, data };
-    } catch (error) {
-      console.error('An error occured: ', error);
+      // Profile tablosundan kullanıcı bilgilerini al
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .single();
+      if (profileError) return { success: false, error: profileError.message };
+      setUserProfile(profileData);
+
+      return { success: true, data: { ...data, profile: profileData } };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: 'Unexpected error' };
     }
   };
 
+  // -------------------- SESSION --------------------
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => setSession(session));
+    supabase.auth.onAuthStateChange((_event, session) => setSession(session));
   }, []);
 
-  //Sign out
-  const signOut = () => {
-    const { error } = supabase.auth.signOut();
-    if (error) {
-      console.error('There was a problem signing up: ', error);
-    }
+  // -------------------- SIGN OUT --------------------
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Sign out error:', error);
+
+    setUserProfile(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ session, signUpNewUser, signInUser, signOut }}
+      value={{ session, userProfile, signUpNewUser, signInUser, signOut }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const UserAuth = () => {
-  return useContext(AuthContext);
-};
+export const UserAuth = () => useContext(AuthContext);
