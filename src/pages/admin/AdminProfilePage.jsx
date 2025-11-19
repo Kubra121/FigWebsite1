@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
-import { fetchProducts } from '../services/fetchProducts';
-import { fetchUserRole } from '../services/fetchUserRole';
-import UpdateProductModal from '../pages/UpdateProductModal';
-import ActiveToggle from '../components/ActiveToggle';
+import { supabase } from '../../supabaseClient';
+import { fetchProducts } from '../../services/fetchProducts';
+import { fetchUserRole } from '../../services/fetchUserRole';
+import UpdateProductModal from '../UpdateProductModal';
+import OrderDetailPage from '../user/OrderDetailPage';
+import ActiveToggle from '../../components/ActiveToggle';
 
 const AdminProfilePage = () => {
+  const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -16,6 +18,7 @@ const AdminProfilePage = () => {
     is_active: true, // eklendi
   });
   const [loading, setLoading] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [updatedProduct, setUpdatedProduct] = useState({
@@ -31,6 +34,8 @@ const AdminProfilePage = () => {
 
   const [activeTab, setActiveTab] = useState('add');
   const [userRole, setUserRole] = useState(null);
+
+  const [selectedOrder, setSelectedOrder] = useState(null); // Modal için seçilen sipariş
 
   // Kullanıcı rolünü al
   useEffect(() => {
@@ -59,8 +64,43 @@ const AdminProfilePage = () => {
   };
 
   useEffect(() => {
+    debugger;
     getProducts();
   }, []);
+
+  // Siparişleri getir (orders + order_items + ürün bilgisi)
+  const getOrders = async () => {
+    setLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(
+          `id, order_no,profiles!orders_user_id_fkey (first_name, last_name),order_date`
+        )
+        .order('order_date', { ascending: false });
+      debugger;
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (err) {
+      console.error('Siparişler alınamadı:', err.message);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    getOrders();
+  }, []);
+
+  // Modal aç
+  const openOrderModal = (order) => {
+    setSelectedOrder(order);
+  };
+
+  const closeOrderModal = () => {
+    setSelectedOrder(null);
+  };
 
   // Ürün Ekle
   const addProduct = async (e) => {
@@ -226,64 +266,105 @@ const AdminProfilePage = () => {
         >
           Ürün Listesi
         </button>
+        <button
+          className={`px-4 py-2 -mb-px border-b-2 font-semibold ${
+            activeTab === 'order'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-600'
+          }`}
+          onClick={() => setActiveTab('order')}
+        >
+          Sipariş Listesi
+        </button>
       </div>
 
       {activeTab === 'add' && (
-        <form onSubmit={addProduct} className='flex flex-col gap-2'>
-          <input
-            type='text'
-            placeholder='Ürün Adı'
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className='border p-2 rounded'
-          />
-          <input
-            type='number'
-            placeholder='Fiyat'
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({
-                ...newProduct,
-                price: parseFloat(e.target.value),
-              })
-            }
-            className='border p-2 rounded'
-          />
-          <input
-            type='number'
-            placeholder='Stok'
-            value={newProduct.stock}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })
-            }
-            className='border p-2 rounded'
-          />
-          <textarea
-            placeholder='Ürün Açıklaması'
-            value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
-            className='border p-2 rounded'
-          />
-          {userRole === 'admin' && (
+        <form onSubmit={addProduct} className='flex flex-col gap-3'>
+          {/* Ürün Adı */}
+          <div className='flex items-center'>
+            <label className='w-40 font-medium'>Ürün Adı:</label>
             <input
-              type='file'
-              accept='image/*'
+              type='text'
+              value={newProduct.name}
               onChange={(e) =>
-                setNewProduct({ ...newProduct, imageFile: e.target.files[0] })
+                setNewProduct({ ...newProduct, name: e.target.value })
               }
-              className='border p-2 rounded'
+              className='border p-2 rounded flex-1'
             />
+          </div>
+
+          {/* Fiyat */}
+          <div className='flex items-center'>
+            <label className='w-40 font-medium'>Fiyat:</label>
+            <input
+              type='number'
+              value={newProduct.price}
+              onChange={(e) =>
+                setNewProduct({
+                  ...newProduct,
+                  price: parseFloat(e.target.value),
+                })
+              }
+              className='border p-2 rounded flex-1'
+            />
+          </div>
+
+          {/* Stok */}
+          <div className='flex items-center'>
+            <label className='w-40 font-medium'>Stok:</label>
+            <input
+              type='number'
+              value={newProduct.stock}
+              onChange={(e) =>
+                setNewProduct({
+                  ...newProduct,
+                  stock: parseInt(e.target.value),
+                })
+              }
+              className='border p-2 rounded flex-1'
+            />
+          </div>
+
+          {/* Ürün Açıklaması */}
+          <div className='flex items-center'>
+            <label className='w-40 font-medium'>Açıklama:</label>
+            <textarea
+              value={newProduct.description}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, description: e.target.value })
+              }
+              className='border p-2 rounded flex-1'
+              rows={3}
+            />
+          </div>
+
+          {/* Görsel Yükleme (sadece admin için) */}
+          {userRole === 'admin' && (
+            <div className='flex items-center'>
+              <label className='w-40 font-medium'>Görsel:</label>
+              <input
+                type='file'
+                accept='image/*'
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    imageFile: e.target.files[0],
+                  })
+                }
+                className='border p-2 rounded flex-1'
+              />
+            </div>
           )}
-          <button
-            type='submit'
-            className='bg-green-600 text-white py-2 rounded hover:bg-green-700'
-          >
-            Ekle
-          </button>
+
+          {/* Ekle Butonu */}
+          <div className='flex justify-end mt-4'>
+            <button
+              type='submit'
+              className='bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700'
+            >
+              Ekle
+            </button>
+          </div>
         </form>
       )}
 
@@ -301,7 +382,8 @@ const AdminProfilePage = () => {
                   <th className='p-2 text-left'>Stok</th>
                   <th className='p-2 text-left'>Açıklama</th>
                   <th className='p-2 text-left'>Fotoğraf</th>
-                  <th className='p-2'>İşlemler</th>
+                  <th className='p-2 text-middle'>Güncelleme</th>
+                  <th className='p-2 text-middle'>Ürünü kaldırma</th>
                 </tr>
               </thead>
               <tbody>
@@ -321,26 +403,32 @@ const AdminProfilePage = () => {
                         />
                       )}
                     </td>
-                    <td className='p-2 flex gap-2'>
-                      <button
-                        onClick={() => openUpdateModal(product)}
-                        className='bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700'
-                      >
-                        Güncelle
-                      </button>
-                      <ActiveToggle
-                        productId={product.id}
-                        isActive={product.is_active}
-                        onChange={(newStatus) =>
-                          setProducts((prev) =>
-                            prev.map((p) =>
-                              p.id === product.id
-                                ? { ...p, is_active: newStatus }
-                                : p
+                    <td>
+                      <div className='flex justify-center items-center min-h-[40px]'>
+                        <button
+                          onClick={() => openUpdateModal(product)}
+                          className='bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700'
+                        >
+                          Güncelle
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div className='flex justify-center items-center min-h-[40px]'>
+                        <ActiveToggle
+                          productId={product.id}
+                          isActive={product.is_active}
+                          onChange={(newStatus) =>
+                            setProducts((prev) =>
+                              prev.map((p) =>
+                                p.id === product.id
+                                  ? { ...p, is_active: newStatus }
+                                  : p
+                              )
                             )
-                          )
-                        }
-                      />
+                          }
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -348,6 +436,45 @@ const AdminProfilePage = () => {
             </table>
           )}
         </>
+      )}
+
+      {activeTab === 'order' && (
+        <>
+          {loadingOrders ? (
+            <p>Siparişler yükleniyor...</p>
+          ) : orders.length === 0 ? (
+            <p>Henüz sipariş bulunmuyor. {orders.length}</p>
+          ) : (
+            <table className='w-full border-collapse'>
+              <thead>
+                <tr className='border-b'>
+                  <th className='p-2 text-left'>Sipariş No</th>
+                  <th className='p-2 text-left'>Müşteri</th>
+                  <th className='p-2 text-left'>Tarih</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className='border-b cursor-pointer hover:bg-gray-100'
+                    onClick={() => setSelectedOrder(order.id)} // sadece id gönderiyoruz
+                  >
+                    <td>{order.order_no}</td>
+                    <td>
+                      {order.profiles.first_name} {order.profiles.last_name}
+                    </td>
+                    <td>{new Date(order.order_date).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+
+      {selectedOrder && (
+        <OrderDetailPage order={selectedOrder} onClose={closeOrderModal} />
       )}
 
       {showModal && (

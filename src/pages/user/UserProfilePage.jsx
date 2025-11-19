@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 
 const UserProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -28,7 +28,20 @@ const UserProfilePage = () => {
       // Siparişler
       const { data: ordersData } = await supabase
         .from('orders')
-        .select('id, product_name, quantity, price, created_at')
+        .select(
+          `
+          id,
+          order_no,
+          total_amount,
+          status,
+          created_at,
+          order_items (
+            product_id,
+            quantity,
+            price
+          )
+        `
+        )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -82,17 +95,41 @@ const UserProfilePage = () => {
         {orders.length === 0 ? (
           <p className='text-gray-500'>Henüz siparişiniz yok.</p>
         ) : (
-          <ul className='divide-y divide-gray-200'>
+          <ul className='space-y-4'>
             {orders.map((order) => (
-              <li key={order.id} className='py-4 flex justify-between'>
-                <div>
-                  <p className='font-medium'>{order.product_name}</p>
-                  <p className='text-sm text-gray-500'>
-                    Adet: {order.quantity} •{' '}
-                    {new Date(order.created_at).toLocaleDateString()}
+              <li key={order.id} className='border rounded-lg p-4 bg-white'>
+                {/* Üst Bilgi */}
+                <div className='flex items-center justify-between mb-2'>
+                  <p className='font-semibold text-gray-800'>
+                    Sipariş No: {order.order_no}
+                  </p>
+
+                  <p className='text-green-600 font-bold'>
+                    {order.total_amount} ₺
                   </p>
                 </div>
-                <p className='font-semibold'>{order.price} ₺</p>
+
+                <p className='text-sm text-gray-500 mb-3'>
+                  {new Date(order.created_at).toLocaleDateString()}
+                </p>
+
+                {/* Orta Bilgiler */}
+                <div className='text-sm text-gray-700 space-y-1'>
+                  <p>
+                    <span className='font-medium'>Durum:</span> {order.status}
+                  </p>
+                  <p>
+                    <span className='font-medium'>Adres:</span>{' '}
+                    {order.shipping_address}
+                  </p>
+                  <p>
+                    <span className='font-medium'>Ürün Sayısı:</span>{' '}
+                    {order.order_items.reduce(
+                      (t, item) => t + item.quantity,
+                      0
+                    )}
+                  </p>
+                </div>
               </li>
             ))}
           </ul>

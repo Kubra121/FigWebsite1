@@ -10,13 +10,15 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import RegisterPage from './pages/user/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
 import ProfilePage from './pages/ProfilePage';
-import CartPage from './pages/CartPage';
+import CartPage from './pages/user/CartPage';
 import { ShoppingCartProvider } from './contexts/ShoppingCartContext';
-import PurchasePage from './pages/PurchasePage';
-import AdminPage from './pages/AdminPage';
+import PurchasePage from './pages/user/PurchasePage';
+import AdminPage from './pages/admin/AdminPage';
+import Checkout from './utils/Checkout';
+import PaymentPage from './pages/user/PaymentPage';
 
 function App() {
   return (
@@ -42,10 +44,18 @@ function App() {
             }
           />
           <Route
-            path='/user/purchase'
+            path='/user/checkout'
             element={
               <PrivateRoute role='user'>
-                <PurchasePage />
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path='/user/payment'
+            element={
+              <PrivateRoute role='user'>
+                <PaymentPage />
               </PrivateRoute>
             }
           />

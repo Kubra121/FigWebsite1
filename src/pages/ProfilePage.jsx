@@ -1,6 +1,6 @@
 import { UserAuth } from '../contexts/AuthContext';
-import UserProfile from './UserProfilePage';
-import AdminProfile from './AdminProfilePage';
+import UserProfile from './user/UserProfilePage';
+import AdminProfile from './admin/AdminProfilePage';
 
 const ProfilePage = () => {
   const { userProfile } = UserAuth();
