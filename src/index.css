@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource/roboto';
 
 body {
   background-color: #ffffff;

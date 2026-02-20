@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Hero from './components/Hero';
+
 import NavBar from './components/NavBar';
 import Analytics from './components/Analytics';
 import Cards from './components/Cards';
@@ -18,7 +18,13 @@ import { ShoppingCartProvider } from './contexts/ShoppingCartContext';
 import PurchasePage from './pages/user/PurchasePage';
 import AdminPage from './pages/admin/AdminPage';
 import Checkout from './utils/Checkout';
-import PaymentPage from './pages/user/PaymentPage';
+// import PaymentPage from './pages/user/PaymentPage';
+import AdminCarousel from './pages/admin/AdminCarousel';
+import PaymentErrorBoundary from './components/PaymentErrorBoundary';
+import PaymentResult from './pages/user/PaymentResult';
+import PaymentWaiting from './pages/user/PaymentWaiting';
+import UserProfilePage from './pages/user/UserProfilePage';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
 
 function App() {
   return (
@@ -52,20 +58,53 @@ function App() {
             }
           />
           <Route
-            path='/user/payment'
+            path='/payment-result'
             element={
               <PrivateRoute role='user'>
-                <PaymentPage />
+                <PaymentResult />
               </PrivateRoute>
             }
           />
-          <Route path='/profile' element={<ProfilePage />} />
+          <Route
+            path='/payment-waiting'
+            element={
+              <PrivateRoute role='user'>
+                <PaymentWaiting />
+              </PrivateRoute>
+            }
+          />
+          {/* <Route
+            path='/user/payment'
+            element={
+              <PrivateRoute role='user'>
+                <PaymentErrorBoundary>
+                  <PaymentPage />
+                </PaymentErrorBoundary>
+              </PrivateRoute>
+            }
+          /> */}
+          <Route
+            path='/user/profile'
+            element={
+              <PrivateRoute role='user'>
+                <UserProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path='/admin/profile'
+            element={
+              <PrivateRoute role='admin'>
+                <AdminProfilePage />
+              </PrivateRoute>
+            }
+          />
           {/* Admin Routes */}
           <Route
             path='/admin'
             element={
               <PrivateRoute role='admin'>
-                <AdminPage />
+                <HomePage />
               </PrivateRoute>
             }
           />

@@ -3,7 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { fetchProducts } from '../../services/fetchProducts';
 import { fetchUserRole } from '../../services/fetchUserRole';
 import UpdateProductModal from '../UpdateProductModal';
-import OrderDetailPage from '../user/OrderDetailPage';
+import OrderDetailPage from '../admin/OrderDetailPage';
 import ActiveToggle from '../../components/ActiveToggle';
 
 const AdminProfilePage = () => {
@@ -14,6 +14,7 @@ const AdminProfilePage = () => {
     price: 0,
     stock: 0,
     description: '',
+    category: '',
     imageFile: null,
     is_active: true, // eklendi
   });
@@ -27,6 +28,7 @@ const AdminProfilePage = () => {
     price: 0,
     stock: 0,
     description: '',
+    category: '',
     imageFile: null,
     image_url: null,
     is_active: true, // eklendi
@@ -64,7 +66,6 @@ const AdminProfilePage = () => {
   };
 
   useEffect(() => {
-    debugger;
     getProducts();
   }, []);
 
@@ -75,13 +76,24 @@ const AdminProfilePage = () => {
       const { data, error } = await supabase
         .from('orders')
         .select(
-          `id, order_no,profiles!orders_user_id_fkey (first_name, last_name),order_date`
+          `
+        id,
+        order_no,
+        order_date,
+        profiles(first_name, last_name),
+        order_items(count)
+      `
         )
         .order('order_date', { ascending: false });
-      debugger;
-
       if (error) throw error;
-      setOrders(data || []);
+
+      // Ürün sayısı için count alanı: order_items[0].count
+      const formatted = data.map((o) => ({
+        ...o,
+        item_count: o.order_items?.[0]?.count || 0,
+      }));
+
+      setOrders(formatted);
     } catch (err) {
       console.error('Siparişler alınamadı:', err.message);
     } finally {
@@ -105,7 +117,7 @@ const AdminProfilePage = () => {
   // Ürün Ekle
   const addProduct = async (e) => {
     e.preventDefault();
-    const { name, price, stock, description, imageFile, is_active } =
+    const { name, price, stock, description, category, imageFile, is_active } =
       newProduct;
 
     if (!name || price <= 0) return alert('Geçerli ürün bilgisi giriniz.');
@@ -150,7 +162,9 @@ const AdminProfilePage = () => {
 
     const { error } = await supabase
       .from('products')
-      .insert([{ name, price, stock, description, image_url, is_active }]);
+      .insert([
+        { name, price, stock, description, category, image_url, is_active },
+      ]);
 
     if (error) return alert('Ürün eklenemedi: ' + error.message);
 
@@ -161,6 +175,7 @@ const AdminProfilePage = () => {
       price: 0,
       stock: 0,
       description: '',
+      category: '',
       imageFile: null,
       is_active: true,
     });
@@ -180,12 +195,21 @@ const AdminProfilePage = () => {
       price,
       stock,
       description,
+      category,
       imageFile,
       is_active,
       image_url: currentUrl,
     } = updatedProduct;
 
-    if (!id || !name || isNaN(price) || isNaN(stock) || stock < 0 || price <= 0)
+    if (
+      !id ||
+      !name ||
+      !category ||
+      isNaN(price) ||
+      isNaN(stock) ||
+      stock < 0 ||
+      price <= 0
+    )
       return alert('Geçerli değerler girin.');
 
     let image_url = currentUrl || null;
@@ -213,7 +237,15 @@ const AdminProfilePage = () => {
 
     const { error } = await supabase
       .from('products')
-      .update({ name, price, stock, description, image_url, is_active })
+      .update({
+        name,
+        price,
+        stock,
+        description,
+        category,
+        image_url,
+        is_active,
+      })
       .eq('id', id);
 
     if (error) return alert('Güncelleme başarısız: ' + error.message);
@@ -221,7 +253,16 @@ const AdminProfilePage = () => {
     setProducts((prev) =>
       prev.map((p) =>
         p.id === id
-          ? { ...p, name, price, stock, description, image_url, is_active }
+          ? {
+              ...p,
+              name,
+              price,
+              stock,
+              description,
+              category,
+              image_url,
+              is_active,
+            }
           : p
       )
     );
@@ -356,6 +397,25 @@ const AdminProfilePage = () => {
             </div>
           )}
 
+          <div className='flex items-center'>
+            <label className='w-40 font-medium'>Kategori:</label>
+            <select
+              value={newProduct.category}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, category: e.target.value })
+              }
+              className='border p-2 rounded flex-1'
+              required
+            >
+              <option value=''>Kategori seç</option>
+              <option value='Ceviz'>Ceviz</option>
+              <option value='Kuru İncir'>Kuru İncir</option>
+              <option value='Zeytinyağı'>Zeytinyağı</option>
+              <option value='Pekmez'>Pekmez</option>
+              <option value='Diğer'>Diğer</option>
+            </select>
+          </div>
+
           {/* Ekle Butonu */}
           <div className='flex justify-end mt-4'>
             <button
@@ -371,7 +431,7 @@ const AdminProfilePage = () => {
       {activeTab === 'list' && (
         <>
           {loading ? (
-            <p>Yükleniyor...</p>
+            <p className='p-4 mt-16'>Yükleniyor...</p>
           ) : (
             <table className='w-full border-collapse'>
               <thead>
@@ -379,6 +439,7 @@ const AdminProfilePage = () => {
                   <th className='p-2 text-left'>ID</th>
                   <th className='p-2 text-left'>Ürün Adı</th>
                   <th className='p-2 text-left'>Fiyat</th>
+                  <th className='p-2 text-left'>Kategori</th>
                   <th className='p-2 text-left'>Stok</th>
                   <th className='p-2 text-left'>Açıklama</th>
                   <th className='p-2 text-left'>Fotoğraf</th>
@@ -392,6 +453,7 @@ const AdminProfilePage = () => {
                     <td className='p-2'>{product.id}</td>
                     <td className='p-2'>{product.name}</td>
                     <td className='p-2'>{product.price}</td>
+                    <td className='p-2'>{product.category}</td>
                     <td className='p-2'>{product.stock}</td>
                     <td className='p-2'>{product.description}</td>
                     <td className='p-2'>
@@ -441,9 +503,9 @@ const AdminProfilePage = () => {
       {activeTab === 'order' && (
         <>
           {loadingOrders ? (
-            <p>Siparişler yükleniyor...</p>
+            <p className='p-4 mt-16'>Siparişler yükleniyor...</p>
           ) : orders.length === 0 ? (
-            <p>Henüz sipariş bulunmuyor. {orders.length}</p>
+            <p className='p-4 mt-16'>Henüz sipariş bulunmuyor.</p>
           ) : (
             <table className='w-full border-collapse'>
               <thead>
@@ -451,6 +513,7 @@ const AdminProfilePage = () => {
                   <th className='p-2 text-left'>Sipariş No</th>
                   <th className='p-2 text-left'>Müşteri</th>
                   <th className='p-2 text-left'>Tarih</th>
+                  <th className='p-2 text-left'>Ürün Sayısı</th>
                 </tr>
               </thead>
               <tbody>
@@ -458,13 +521,14 @@ const AdminProfilePage = () => {
                   <tr
                     key={order.id}
                     className='border-b cursor-pointer hover:bg-gray-100'
-                    onClick={() => setSelectedOrder(order.id)} // sadece id gönderiyoruz
+                    onClick={() => setSelectedOrder(order)}
                   >
                     <td>{order.order_no}</td>
                     <td>
                       {order.profiles.first_name} {order.profiles.last_name}
                     </td>
                     <td>{new Date(order.order_date).toLocaleDateString()}</td>
+                    <td>{order.item_count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -474,7 +538,7 @@ const AdminProfilePage = () => {
       )}
 
       {selectedOrder && (
-        <OrderDetailPage order={selectedOrder} onClose={closeOrderModal} />
+        <OrderDetailPage orderId={selectedOrder} onClose={closeOrderModal} />
       )}
 
       {showModal && (

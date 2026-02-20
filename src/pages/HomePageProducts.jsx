@@ -31,12 +31,12 @@ const HomePageProducts = () => {
 
   return (
     <div className='p-4 max-w-[1700px] mx-auto relative'>
-      <h1 className='text-[30px] font-bold mb-4 text-[#04310a]'>
+      <h1 className='text-[30px] font-bold mb-4 text-[#04310a] ml-5'>
         Popüler Ürünler
       </h1>
 
       {loading ? (
-        <p>Yükleniyor...</p>
+        <p className='p-4 mt-16'>Yükleniyor...</p>
       ) : (
         <div className='relative'>
           {/* Sol ok */}

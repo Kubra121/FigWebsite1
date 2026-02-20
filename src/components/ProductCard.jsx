@@ -3,14 +3,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-  const { addToCart } = useShoppingCart(); // 🔥 increaseItemQuantity yerine addToCart
+  const { addToCart } = useShoppingCart();
 
   const [showAddedMessage, setShowAddedMessage] = useState(false);
   const navigate = useNavigate();
 
   const handleAddToCart = (e) => {
-    e.stopPropagation(); // 🛑 Kart tıklanınca ürün sayfasına gitmesin
-    addToCart(product); // 🔥 Ürün objesinin tamamını ekle
+    e.stopPropagation();
+    addToCart(product);
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 2000);
@@ -28,6 +28,7 @@ const ProductCard = ({ product }) => {
       />
       <div className='flex-grow'>
         <h3 className='text-xl font-semibold'>{product.name}</h3>
+        <p className='text-sm text-gray-500 mt-1'>{product.category}</p>
         <p className='text-gray-600'>{product.description}</p>
       </div>
       <p className='text-lg font-bold mt-2 text-[#04310a]'>

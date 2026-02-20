@@ -19,10 +19,21 @@ const CartPage = () => {
 
   // Satın Al → Checkout sayfasına yönlendir
   const goToCheckout = () => {
+    if (cartItems.length === 0) return alert('Sepetiniz boş.');
+
+    // Price ve name ekleyelim
+    const cartItemsWithDetails = cartItems.map((item) => {
+      const product = products.find((p) => p.id === item.id);
+      return {
+        id: item.id,
+        name: product?.name ?? '',
+        price: product?.price ?? 0,
+        quantity: item.quantity,
+      };
+    });
+
     navigate('/user/checkout', {
-      state: {
-        cartItems,
-      },
+      state: { cartItems: cartItemsWithDetails },
     });
   };
 
@@ -50,11 +61,11 @@ const CartPage = () => {
     return total + (product?.price || 0) * cartItem.quantity;
   }, 0);
 
-  if (loading) return <p>Yükleniyor...</p>;
+  if (loading) return <p className='p-4 mt-16'>Yükleniyor...</p>;
 
   return (
-    <div className='max-w-5xl mx-auto p-6'>
-      <h1 className='text-3xl font-bold mb-6'>🛒 Sepetim</h1>
+    <div className='max-w-5xl mx-auto p-6 ml-72 mt-16'>
+      <h1 className='text-3xl font-bold mb-6  '>🛒 Sepetim</h1>
 
       {cartItems.length === 0 ? (
         <p className='text-gray-500'>Sepetiniz boş.</p>

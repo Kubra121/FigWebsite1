@@ -45,6 +45,22 @@ const UpdateProductModal = ({ product, onChange, onClose, onSave }) => {
           />
         </div>
 
+        {/* Kategori */}
+        <div className='flex items-center mb-4'>
+          <label className='w-32 font-medium'>Kategori:</label>
+          <select
+            value={product.category}
+            onChange={(e) => onChange({ ...product, category: e.target.value })}
+            className='border p-2 rounded flex-1'
+          >
+            <option value='Ceviz'>Ceviz</option>
+            <option value='Kuru İncir'>Kuru İncir</option>
+            <option value='Zeytinyağı'>Zeytinyağı</option>
+            <option value='Pekmez'>Pekmez</option>
+            <option value='Diğer'>Diğer</option>
+          </select>
+        </div>
+
         {/* Butonlar */}
         <div className='flex justify-end gap-2'>
           <button

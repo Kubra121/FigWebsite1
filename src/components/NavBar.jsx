@@ -3,6 +3,7 @@ import { FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserAuth } from '../contexts/AuthContext';
+import FigeliaLogo from '../assets/Figelia.png';
 
 // -------------------- Tek Menü Linki --------------------
 const NavLink = ({ name, onClick, className = '' }) => (
@@ -37,7 +38,14 @@ const AuthButtons = ({ session, isAdmin, navigate, handleLogOut }) => {
       {!isAdmin && <CartButton navigate={navigate} />}
       <FaUserCircle
         className='text-3xl text-gray-700 hover:text-black cursor-pointer'
-        onClick={() => navigate('/profile')}
+        onClick={() => {
+          // Role bazlı yönlendirme
+          if (isAdmin) {
+            navigate('/admin/profile');
+          } else {
+            navigate('/user/profile');
+          }
+        }}
       />
       <button
         onClick={handleLogOut}
@@ -88,17 +96,22 @@ const MobileMenu = ({
         navOpen ? 'left-0' : 'left-[-100%]'
       }`}
     >
-      <h1 className='w-full text-3xl font-bold text-[#04310a] m-4'>FIG</h1>
+      <img
+        src={FigeliaLogo}
+        alt='Figelia'
+        className='w-32 h-auto ml-8 mt-16 mb-4 cursor-pointer'
+        onClick={() => navigate('/')}
+      ></img>
       <ul className='pt-12 uppercase p-4 space-y-2'>
         {commonLinks.map((link, i) =>
-          renderLink({ name: link.name, action: () => navigate(link.path) }, i)
+          renderLink({ name: link.name, action: () => navigate(link.path) }, i),
         )}
         {authLinks.map((link, i) => renderLink(link, i + commonLinks.length))}
         {session &&
           !isAdmin &&
           renderLink(
             { name: 'Sepet', action: () => navigate('/user/cart') },
-            commonLinks.length + authLinks.length
+            commonLinks.length + authLinks.length,
           )}
       </ul>
     </div>
@@ -144,39 +157,41 @@ const NavBar = () => {
       ]
     : [
         { name: session.user.email },
-        { name: 'Çıkış Yap', action: handleLogOut, className: 'text-red-600' },
+        {
+          name: 'Çıkış Yap',
+          action: handleLogOut,
+          className: 'text-red-600',
+        },
       ];
 
   return (
-    <div className='mt-12 flex justify-between items-center h-24 max-w-[1800px] mx-auto px-4 text-black'>
-      <h1
-        className='w-full text-3xl font-bold text-[#04310a] cursor-pointer'
+    <div className='flex justify-between items-center h-24 max-w-[1800px] mx-auto px-4 text-black'>
+      <img
+        src={FigeliaLogo}
+        alt='Figelia'
+        className='w-32 h-auto ml-8 mt-16 mb-4 cursor-pointer'
         onClick={() => navigate('/')}
-      >
-        FIG
-      </h1>
+      ></img>
 
       {/* Masaüstü Menü */}
-      <ul className='hidden md:flex items-center space-x-2'>
+      <ul className='hidden md:flex items-center space-x-8 mr-6 mt-6'>
         {commonLinks.map((link, i) => (
           <li
             key={i}
-            className='p-4 cursor-pointer'
+            className='cursor-pointer'
             onClick={() => navigate(link.path)}
           >
             {link.name}
           </li>
         ))}
-      </ul>
 
-      <div className='hidden md:flex items-center justify-center space-x-6 w-96'>
         <AuthButtons
           session={session}
           isAdmin={isAdmin}
           navigate={navigate}
           handleLogOut={handleLogOut}
         />
-      </div>
+      </ul>
 
       {/* Mobil Menü Aç/Kapa */}
       <div onClick={toggleNav} className='block md:hidden z-50 cursor-pointer'>
@@ -198,3 +213,13 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
+// Ceviz-İnce Kabuk Chandler/Yerli Ceviz
+
+// Kuru İncir-İri/Orta/Küçük Boy Dağ İnciri ve Çatlak İncir
+
+// Zeytinyağı-Naturel Sızma Zeytinyağı, Naturel Birinci
+
+// Diğer-Zeytinyağlı Sabun, Zeytinyağlı incir kürü, İncir reçeli
+
+// Pekmez

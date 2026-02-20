@@ -12,7 +12,7 @@ export const AuthContextProvider = ({ children }) => {
     email,
     password,
     firstName = '',
-    lastName = ''
+    lastName = '',
   ) => {
     if (!email || !password)
       return { success: false, error: 'Email ve parola zorunludur.' };
@@ -75,10 +75,45 @@ export const AuthContextProvider = ({ children }) => {
 
   // -------------------- SESSION --------------------
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => setSession(session));
-    supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    const fetchSessionAndProfile = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+
+      if (session?.user?.id) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!profileError) setUserProfile(profileData);
+      }
+    };
+
+    fetchSessionAndProfile();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+
+        if (session?.user?.id) {
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data, error }) => {
+              if (!error) setUserProfile(data);
+            });
+        } else {
+          setUserProfile(null);
+        }
+      },
+    );
+
+    return () => listener.subscription.unsubscribe();
   }, []);
 
   // -------------------- SIGN OUT --------------------
