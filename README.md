@@ -1,98 +1,123 @@
-🛍️ E-Commerce Platform
 
-Modern full-stack e-commerce web application built with React, Node.js, Supabase and iyzico payment integration.
+# 🛍️ E-Commerce Platform
 
-🚀 Tech Stack
-🖥 Frontend
+> Modern full-stack e-commerce application built with React, Node.js, Supabase and iyzico integration.
 
-⚛️ React.js
+---
 
-🎨 Tailwind CSS
+## 🛠 Tech Stack
 
-Axios
+**Frontend**
 
-🛠 Backend
+* React.js
+* Tailwind CSS
+* Axios
 
-Node.js
+**Backend**
 
-Express.js
+* Node.js
+* Express.js
 
-🗄 Database & Auth
+**Database & Auth**
 
-Supabase (PostgreSQL)
+* Supabase (PostgreSQL)
+* Supabase Authentication
 
-Supabase Auth
+**Payment**
 
-💳 Payment Integration
+* iyzico Payment Gateway
 
-iyzico Payment Gateway
+---
 
-✨ Features
+## ✨ Features
 
-🔐 User authentication (Sign up / Login)
+* User Authentication (Register / Login)
+* Product Listing & Filtering
+* Add to Cart
+* Secure Payment Integration (iyzico)
+* Order Creation
+* Responsive Design
 
-🛒 Add to cart & remove from cart
+---
 
-💳 Secure payment with iyzico
+## 🏗 Project Structure
 
-📦 Order management
+```
+project-root
+│
+├── client/          # React frontend
+│
+├── server/
+│   └── src/
+│       └── index.js # Backend entry point
+│
+└── README.md
+```
 
-🔎 Product listing & filtering
+---
 
-📱 Responsive design
+## ⚙️ Installation
 
-🧑‍💼 Admin product management (optional if you have)
+### Clone Project
 
-🏗 Architecture
-
-Client (React + Tailwind)
-⬇
-Node.js API Server
-⬇
-Supabase (PostgreSQL + Auth)
-⬇
-iyzico Payment Service
-
-⚙️ Installation
-1️⃣ Clone the repository
+```bash
 git clone https://github.com/yourusername/project-name.git
 cd project-name
-2️⃣ Install dependencies
+```
 
-Frontend:
+---
 
+### Frontend Setup
+
+```bash
 cd client
 npm install
 npm start
+```
 
-Backend:
+---
 
+### Backend Setup
+
+```bash
 cd server
 npm install
-npm run dev
-3️⃣ Environment Variables
+node src/index.js
+```
 
-Create .env file in server folder:
+---
 
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_key
-IYZICO_API_KEY=your_key
-IYZICO_SECRET_KEY=your_secret
-📸 Screenshots
+## 🔐 Environment Variables
 
-Add screenshots here.
+Create `.env` inside `server` folder:
 
-🧠 Future Improvements
+```
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+IYZICO_API_KEY=
+IYZICO_SECRET_KEY=
+```
 
-🔔 Email notifications
+---
 
-📊 Admin dashboard analytics
+## 📸 Screenshots
 
-❤️ Wishlist
 
-⭐ Product reviews
 
-👨‍💻 Author
+---
+
+## 🧠 Future Improvements
+
+* Admin dashboard
+* Email notifications
+* Product reviews
+* Wishlist feature
+
+---
+
+## 👨‍💻 Author
 
 Kübra Özalp
 Computer Engineer
+
+---
